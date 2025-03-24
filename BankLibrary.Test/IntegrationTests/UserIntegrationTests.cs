@@ -4,6 +4,7 @@ using BankLibrary.Models;
 using BankLibrary.Test.Helpers;
 using Xunit.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using BankLibrary.Services;
 
 namespace BankLibrary.Test.IntegrationTests
 {
@@ -17,7 +18,7 @@ namespace BankLibrary.Test.IntegrationTests
         }
 
         [Fact]
-        public void CanCreateAndRetrieveUser()
+        public void CanCreateAndRetrieveFakeUser()
         {
             // Arrange
             using var context = TestDbContextFactory.Create();
@@ -43,7 +44,7 @@ namespace BankLibrary.Test.IntegrationTests
         }
 
         [Fact]
-        public void CanSaveMultipleUsersAndRetrieveAllUser()
+        public void CanSaveMultipleUsersAndRetrieveAllFakeUser()
         {
             // Arrange
             using var context = TestDbContextFactory.Create();
@@ -62,7 +63,32 @@ namespace BankLibrary.Test.IntegrationTests
                 _output.WriteLine($"User Name: {user.UserName}");
                 _output.WriteLine($"User Email: {user.Email}");
             }
-            
+        }
+
+        [Fact]
+        public async Task ShouldCreateAndSaveUserUsingUserService()
+        {
+            // Arrange
+            using var context = TestDbContextFactory.Create();
+            var userService = new UserService(context); // Use the UserService
+            string userName = "Test User";
+            string userEmail = "testuser@example.com";
+
+            // Act
+            var createdUser = await userService.CreateUserAsync(userName, userEmail);
+
+            // Assert
+            var retrievedUser = await context.Users.FirstOrDefaultAsync(u => u.UserId == createdUser.UserId);
+            Assert.NotNull(retrievedUser);
+            Assert.Equal(userName, retrievedUser.UserName);
+            Assert.Equal(userEmail, retrievedUser.Email);
+
+            // Display information for verification
+            _output.WriteLine("User created and saved successfully using UserService!");
+            _output.WriteLine($"User ID: {retrievedUser.UserId}");
+            _output.WriteLine($"User Name: {retrievedUser.UserName}");
+            _output.WriteLine($"User Email: {retrievedUser.Email}");
+            _output.WriteLine($"Bank Name: {retrievedUser.Bank.BankName}");
         }
     }
 }

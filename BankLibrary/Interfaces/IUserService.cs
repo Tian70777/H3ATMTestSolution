@@ -4,9 +4,9 @@ namespace BankLibrary.Interfaces
 {
     public interface IUserService
     {
-        User CreateUser(string name, string email);
-        User? GetUserById(Guid userId);
-        List<User> GetAllUsers();
-        bool DeleteUser(Guid userId);
+        Task<User> CreateUserAsync(string name, string email);
+        Task<User?> GetUserByIdAsync(Guid userId);
+        Task<List<User>> GetAllUsersAsync();
+        // bool DeleteUser(Guid userId);
     }
 }

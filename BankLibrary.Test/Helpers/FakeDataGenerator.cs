@@ -31,7 +31,10 @@ namespace BankLibrary.Test.Helpers
                 .RuleFor(b => b.BankId, f => f.Random.Int(1, 100)) // Generate random Bank ID
                 .RuleFor(b => b.BankName, f => f.Company.CompanyName()); // Realistic bank name
 
-            return bankFaker.Generate();
+            var bank = bankFaker.Generate();
+            _fakeBank = bank;
+
+            return bank;
         }
 
         // Generate a Fake Account with with a required bank parameter
