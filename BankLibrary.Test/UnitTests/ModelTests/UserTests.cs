@@ -1,5 +1,6 @@
 ﻿using BankLibrary.Factories;
 using BankLibrary.Models;
+using BankLibrary.Services;
 using BankLibrary.Test.Helpers;
 using Xunit;
 
@@ -7,8 +8,6 @@ namespace BankLibrary.Test.UnitTests.ModelTests
 {
     public class UserTests
     {
-
-        
 
         [Fact]
         public void Faker_CreateUserWithFakeBank_ShouldInitializeWithCorrectValues()
@@ -59,6 +58,50 @@ namespace BankLibrary.Test.UnitTests.ModelTests
             Assert.Contains(account, user.Accounts);
             Assert.Equal(user.UserId, account.OwnerId);
             Assert.Equal(user, account.Owner);
+        }
+
+        [Fact]
+        public async Task Login_ShouldIncrementLoginAttempts()
+        {
+            // Arrange
+            var context = TestDbContextFactory.Create();
+            var userService = new UserService(context);
+            var user = await userService.CreateUserAsync("Test User", "test@example.com", "correctpassword");
+
+            // Act: Attempt to login with a wrong password
+            for (int i = 1; i <= 4; i++)
+            {
+                var result = await userService.LoginAsync(user.Email, "wrongpassword");
+                Assert.Null(result);
+
+                // Fetch user again to check attempts count
+                var updatedUser = await userService.GetUserByIdAsync(user.UserId);
+                Assert.Equal(i, updatedUser.LoginAttempts); // Assert the attempt count matches
+            }
+
+            // Check that the user is not locked yet
+            var notLockedUser = await userService.GetUserByIdAsync(user.UserId);
+            Assert.False(notLockedUser.IsLocked);
+        }
+
+        [Fact]
+        public async Task Login_ShouldLockUserAfterFiveFailedAttempts()
+        {
+            // Arrange
+            var context = TestDbContextFactory.Create();
+            var userService = new UserService(context);
+            var user = await userService.CreateUserAsync("Test User", "test@example.com", "correctpassword");
+
+            // Act: Attempt to login with the wrong password 5 times
+            for (int i = 0; i < 5; i++)
+            {
+                var result = await userService.LoginAsync(user.Email, "wrongpassword");
+                Assert.Null(result);
+            }
+
+            // Assert: User should be locked after 5 failed attempts
+            var lockedUser = await userService.GetUserByIdAsync(user.UserId);
+            Assert.True(lockedUser?.IsLocked);
         }
     }
 }

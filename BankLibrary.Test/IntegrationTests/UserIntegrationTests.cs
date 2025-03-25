@@ -73,9 +73,10 @@ namespace BankLibrary.Test.IntegrationTests
             var userService = new UserService(context); // Use the UserService
             string userName = "Test User";
             string userEmail = "testuser@example.com";
+            string rawPassword = "myPasswor";
 
             // Act
-            var createdUser = await userService.CreateUserAsync(userName, userEmail);
+            var createdUser = await userService.CreateUserAsync(userName, userEmail, rawPassword);
 
             // Assert
             var retrievedUser = await context.Users.FirstOrDefaultAsync(u => u.UserId == createdUser.UserId);

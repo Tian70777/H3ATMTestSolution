@@ -7,7 +7,10 @@ namespace BankLibrary.Models
         public Guid UserId { get; set; }  //PK . initialize when creating user in constructor
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-
+        public string Password { get; set; } = string.Empty; // HashedPassword Field
+        public string Salt { get; set; } = string.Empty; // Salt for hashing
+        public bool IsLocked { get; set;  } = false;
+        public int LoginAttempts { get; set; } = 0;
         public int BankId { get; set; }//FK for bank
         public Bank Bank { get; set; }//Nav prop
 

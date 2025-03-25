@@ -37,7 +37,7 @@ namespace BankLibrary.Test.Helpers
             return bank;
         }
 
-        // Generate a Fake Account with with a required bank parameter
+        // Generate a Fake User with with a required bank parameter
         public static User GenerateFakeUser()
         {
             var bank = GetOrCreateFakeBank();
@@ -50,6 +50,7 @@ namespace BankLibrary.Test.Helpers
                  ))
                 .RuleFor(u => u.UserId, f => Guid.NewGuid()) // Generate unique User ID
                 .RuleFor(u => u.Email, f => f.Internet.Email()) // Generate a fake email
+                .RuleFor(u => u.Password, f => f.Internet.Password(10, false, "A-Z0-9")) // 🔑 Generate a fake password
                 .RuleFor(u => u.Bank, f => bank) // assign bank
                 .RuleFor(u => u.BankId, f =>  bank.BankId);
 
